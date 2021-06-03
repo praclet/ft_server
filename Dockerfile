@@ -48,4 +48,4 @@ RUN wget https://files.phpmyadmin.net/phpMyAdmin/5.1.0/phpMyAdmin-5.1.0-all-lang
 
 ENV AUTOINDEX="off"
 
-CMD ["/var/start.sh"]
+CMD ["sh", "/var/start.sh"]
