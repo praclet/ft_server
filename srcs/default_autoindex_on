@@ -1,0 +1,38 @@
+server {
+    error_log  /var/log/nginx/error.log error;
+	access_log /var/log/nginx/access.log;
+	listen   80 default;
+	listen [::]:80;
+    return 301  https://$host$request_uri;
+}
+
+server {
+    error_log  /var/log/nginx/error_ssl.log error;
+	access_log /var/log/nginx/access_ssl.log;
+	
+	listen   443 ssl;
+	listen [::]:443 ssl;
+  	
+	autoindex on;
+	
+	index index.php index.html;
+
+	root /var/www/html;
+
+	server_name localhost;
+	fastcgi_param HTTPS on;
+
+
+	ssl on;
+	ssl_certificate /etc/ssl/localhost.crt;
+	ssl_certificate_key /etc/ssl/localhost.key;
+
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/run/php/php7.3-fpm.sock;
+	}
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+}
