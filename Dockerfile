@@ -42,13 +42,6 @@ COPY ./srcs/wp-config.php /var/www/html/wordpress/wp-config.php
 COPY ./srcs/start.sh /var/start.sh
 COPY ./srcs/wordpress.sql /tmp/wordpress.sql
 COPY ./srcs/index.html /var/www/html/index.html
-
-# Autoindex management 
 COPY ./srcs/default /etc/nginx/sites-available/default
-ENV AUTOINDEX="on"
-RUN if [ "${AUTOINDEX}" = "on" ];			\
-	then									\
-		sed -ie "s/autoindex off;/autoindex on;/" /etc/nginx/sites-available/default; \
-	fi
 
 CMD ["sh", "/var/start.sh"]
