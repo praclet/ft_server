@@ -13,18 +13,9 @@ RUN apt-get -y update					&&	\
 		php-mysql						&&	\
 	rm -rf /var/www/html/index.nginx-debian.html
 
-# Static files copy
-COPY ./srcs/default /tmp/default
-COPY ./srcs/default_autoindex_on /tmp/default_autoindex_on
-COPY ./srcs/wp-config.php /var/www/html/wordpress/wp-config.php
-COPY ./srcs/start.sh /var/start.sh
-COPY ./srcs/wordpress.sql /tmp/wordpress.sql
-COPY ./srcs/index.html /var/www/html/index.html
-
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048									\
-	-subj "/C=FR/ST=Auvergne-Rhône-Alpes/L=Lyon"	\
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048		\
+	-subj "/C=FR/ST=Auvergne-Rhône-Alpes/L=Lyon"			\
 	-keyout ./etc/ssl/localhost.key -out ./etc/ssl/localhost.crt
-
 
 # MySQL initialisation
 RUN service mysql start					&&	\
@@ -46,6 +37,18 @@ RUN wget https://files.phpmyadmin.net/phpMyAdmin/5.1.0/phpMyAdmin-5.1.0-all-lang
 	chown -R www-data:www-data /var/lib/phpmyadmin					&&  \
     chown -R www-data:www-data /var/www/html
 
-ENV AUTOINDEX="off"
+# Static files copy
+COPY ./srcs/wp-config.php /var/www/html/wordpress/wp-config.php
+COPY ./srcs/start.sh /var/start.sh
+COPY ./srcs/wordpress.sql /tmp/wordpress.sql
+COPY ./srcs/index.html /var/www/html/index.html
+
+# Autoindex management 
+COPY ./srcs/default /etc/nginx/sites-available/default
+ENV AUTOINDEX="on"
+RUN if [ "${AUTOINDEX}" = "on" ];			\
+	then									\
+		sed -ie "s/autoindex off;/autoindex on;/" /etc/nginx/sites-available/default; \
+	fi
 
 CMD ["sh", "/var/start.sh"]
